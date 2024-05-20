@@ -4,6 +4,7 @@
     "documentation": "https://github.com/moerpel/HA-SMA_EVCharger/readme.md",
     "dependencies": [],
     "codeowners": ["moerpel"],
+    "requirements": ["requests>=2.25.1"],
     "version": "0.1"
 }
 
