@@ -1,6 +1,7 @@
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_URL
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.typing import ConfigType
