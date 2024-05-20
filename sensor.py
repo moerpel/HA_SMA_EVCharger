@@ -15,11 +15,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Setup sensor platform."""
-    coordinator = hass.data["your_integration"]
-    add_entities([YourSensor(coordinator, config[CONF_USERNAME], config[CONF_PASSWORD])])
+    coordinator = hass.data["HA_SMA_EVCharger"]
+    add_entities([HA_SMA_EVChargerSensor(coordinator, config[CONF_USERNAME], config[CONF_PASSWORD])])
 
-class YourSensor(CoordinatorEntity, SensorEntity):
-    """Definition des Custom Sensors."""
+class HA_SMA_EVChargerSensor(CoordinatorEntity, SensorEntity):
+    """Definition des HA_SMA_EVCharger Sensors."""
 
     def __init__(self, coordinator, username, password):
         """Initialisieren des Sensors."""
@@ -33,7 +33,7 @@ class YourSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self):
         """Rückgabe des Namens des Sensors."""
-        return "Custom Sensor"
+        return "HA_SMA_EVCharger Sensor"
 
     @property
     def state(self):
