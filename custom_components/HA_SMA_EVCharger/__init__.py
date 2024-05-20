@@ -22,7 +22,7 @@ CONFIG_SCHEMA = vol.Schema({
 
 async def async_setup(hass: HomeAssistant, config: ConfigType):
     """Set up the component from configuration.yaml."""
-    conf = config.get('HA_SMA_EVCharger')
+    conf = config.get('evcharger')
     
     coordinator = DataUpdateCoordinator(
         hass,
