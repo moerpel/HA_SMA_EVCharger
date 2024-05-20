@@ -1,6 +1,6 @@
 {
     "domain": "EV Charger",
-    "name": "SMA EV Charger",
+    "name": "smaevcharger",
     "documentation": "https://github.com/moerpel/HA-SMA_EVCharger/readme.md",
     "dependencies": [],
     "codeowners": ["moerpel"],
