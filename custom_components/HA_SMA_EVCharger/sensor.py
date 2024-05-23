@@ -1,83 +1,90 @@
 import logging
-import voluptuous as vol
-from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
-import homeassistant.helpers.config_validation as cv
-from datetime import datetime
-import requests
-import json
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-
+from datetime import timedelta
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import UnitOfPower, UnitOfEnergy
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
+from .evcharger_requests import EvChargerAPI
+from . import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_API_URL
 
 _LOGGER = logging.getLogger(__name__)
+SCAN_INTERVAL = timedelta(seconds=15)
 
-# Definition der Plattformkonfiguration
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_USERNAME): cv.string,
-    vol.Required(CONF_PASSWORD): cv.string,
-})
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+    """Set up the SMA EV Charger sensors."""
+    if discovery_info is None:
+        return
 
-import logging
-from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
+    username = hass.data[DOMAIN][CONF_USERNAME]
+    password = hass.data[DOMAIN][CONF_PASSWORD]
+    api_url = hass.data[DOMAIN][CONF_API_URL]
 
-_LOGGER = logging.getLogger(__name__)
+    api = EvChargerAPI(api_url, username, password)
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Setup sensor platform."""
-    # Hole die spezifische Konfiguration für 'evcharger'
-    evcharger_config = config.get('evcharger')
-    if evcharger_config is None:
-        _LOGGER.error("EVCharger Konfiguration nicht gefunden.")
-        return  # Frühzeitiger Abbruch, wenn keine Konfiguration gefunden wird
+    await hass.async_add_executor_job(api.authenticate)
 
-    # Hole Benutzername und Passwort aus der Konfiguration
-    username = evcharger_config.get(CONF_USERNAME)
-    password = evcharger_config.get(CONF_PASSWORD)
-    if username is None or password is None:
-        _LOGGER.error("Benutzername oder Passwort nicht in der Konfiguration gefunden.")
-        return  # Frühzeitiger Abbruch, wenn kritische Daten fehlen
+    coordinator = DataUpdateCoordinator(
+        hass,
+        _LOGGER,
+        name="evcharger",
+        update_method=lambda: hass.async_add_executor_job(api.get_data),
+        update_interval=SCAN_INTERVAL,
+    )
 
-    # Hole den Coordinator aus den gespeicherten Daten
-    coordinator = hass.data["evcharger"]["coordinator"]
+    await coordinator.async_config_entry_first_refresh()
 
-    # Füge die Sensorentitäten zur Home Assistant Instanz hinzu
-    add_entities([EvchargerSensor(coordinator, username, password)], True)  # True sorgt für ein Update beim Hinzufügen
+    async_add_entities([
+        EvChargerPowerSensor(coordinator),
+        EvChargerEnergySensor(coordinator)
+    ])
 
+class EvChargerSensor(CoordinatorEntity, SensorEntity):
+    """Base class for EV Charger sensors."""
 
-
-
-class evchargerSensor(CoordinatorEntity, SensorEntity):
-    """Definition des evcharger Sensors."""
-
-    def __init__(self, coordinator, username, password):
-        """Initialisieren des Sensors."""
+    def __init__(self, coordinator):
         super().__init__(coordinator)
-        self.coordinator = coordinator
-        self._username = username
-        self._password = password
-        self._state = None
-        self._attributes = {}
+        self._attr_state = None
+
+    @property
+    def available(self):
+        """Return if sensor is available."""
+        return self.coordinator.last_update_success
+
+    async def async_update(self):
+        """Update the sensor."""
+        await self.coordinator.async_request_refresh()
+
+class EvChargerPowerSensor(EvChargerSensor):
+    """Sensor for current charging power."""
 
     @property
     def name(self):
-        """Rückgabe des Namens des Sensors."""
-        return "evchargerSensor"
+        """Return the name of the sensor."""
+        return "Current Charging Power"
 
     @property
     def state(self):
-        """Rückgabe des aktuellen Sensorzustands."""
-        # Beispiel zur Verwendung der Daten; spezifische Logik hier anpassen
-        if self.coordinator.data:
-            return float(self.coordinator.data[14]['values']) / 1000 if self.coordinator.data[14]['values'] else None
-        return None
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("current_power")
 
     @property
-    def extra_state_attributes(self):
-        """Rückgabe zusätzlicher Attribute des Sensors."""
-        # Weitere nützliche Informationen als Attribute hinzufügen
-        if self.coordinator.data:
-            return {
-                'aktuelle_ladung': float(self.coordinator.data[0]['values']) / 1000 if self.coordinator.data[0]['values'] else None,
-                'zeitstempel': datetime.now().isoformat()
-            }
-        return {}
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return UnitOfPower.WATT
+
+class EvChargerEnergySensor(EvChargerSensor):
+    """Sensor for total energy charged."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "Total Energy Charged"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("total_energy")
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return UnitOfEnergy.KILO_WATT_HOUR
