@@ -60,7 +60,7 @@ class EvChargerPowerSensor(EvChargerSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Current Charging Power"
+        return "EVcharger Current Charging Power"
 
     @property
     def state(self):
@@ -78,7 +78,7 @@ class EvChargerEnergySensor(EvChargerSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Total Energy Charged"
+        return "EVcharger Total Energy Charged"
 
     @property
     def state(self):
