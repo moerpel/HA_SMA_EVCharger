@@ -94,5 +94,5 @@ class EvChargerAPI:
         return {
             "evcharger_current_power": evcharger_current_power,
             "evcharger_total_energy": evcharger_total_energy,
-            "evcharger_connection_status": evcharger_total_energy
+            "evcharger_connection_status": evcharger_connection_status
         }
