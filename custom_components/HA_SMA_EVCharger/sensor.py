@@ -7,7 +7,7 @@ from .evcharger_requests import EvChargerAPI
 from . import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_API_URL
 
 _LOGGER = logging.getLogger(__name__)
-SCAN_INTERVAL = timedelta(seconds=15)
+SCAN_INTERVAL = timedelta(seconds=30)
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the SMA EV Charger sensors."""
@@ -34,7 +34,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     async_add_entities([
         EvChargerPowerSensor(coordinator),
-        EvChargerEnergySensor(coordinator)
+        EvChargerEnergySensor(coordinator),
+        EvChargerConnectionStatus(coordinator)
     ])
 
 class EvChargerSensor(CoordinatorEntity, SensorEntity):
@@ -64,12 +65,12 @@ class EvChargerPowerSensor(EvChargerSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.data.get("current_power")
+        return self.coordinator.data.get("evcharger_current_power")
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return UnitOfPower.WATT
+        return UnitOfPower.KILO_WATT_HOUR
 
 class EvChargerEnergySensor(EvChargerSensor):
     """Sensor for total energy charged."""
@@ -82,9 +83,26 @@ class EvChargerEnergySensor(EvChargerSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.data.get("total_energy")
+        return self.coordinator.data.get("evcharger_total_energy")
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return UnitOfEnergy.KILO_WATT_HOUR
+class EvChargerConnectionStatus(EvChargerSensor):
+    """Sensor for total connection status."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Connection Status"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_connection_status")
+
+'''     @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return UnitOfEnergy.KILO_WATT_HOUR '''
