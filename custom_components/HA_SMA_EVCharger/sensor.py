@@ -70,7 +70,7 @@ class EvChargerPowerSensor(EvChargerSensor):
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return UnitOfPower.KILO_WATT_HOUR
+        return UnitOfPower.KILO_WATT
 
 class EvChargerEnergySensor(EvChargerSensor):
     """Sensor for total energy charged."""
