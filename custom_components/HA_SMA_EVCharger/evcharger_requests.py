@@ -47,8 +47,9 @@ class EvChargerAPI:
         _LOGGER.debug(f"API response: {json.dumps(data, indent=2)}")
 
         # Data Processing
-        current_power = None
-        total_energy = None
+        evcharger_current_power = None
+        evcharger_total_energy = None
+        evcharger_connection_status = None
 
         for item in data:
             channel = item['channelId']
@@ -76,19 +77,22 @@ class EvChargerAPI:
                 continue
 
             if channel == "Measurement.ChaSess.WhIn":
-                total_energy = value / 1000  # Convert to kWh
+                evcharger_total_energy = value / 1000  # Convert to kWh
             elif channel == "Measurement.Metering.GridMs.TotWIn":
-                current_power = value / 1000  # Convert to kW
+                evcharger_current_power = value / 1000  # Convert to kW
+            elif channel == "Measurement.Wl.ConnStt":
+                evcharger_connection_status = value   # Connection Status
 
             # Log the parsed values for debugging
-            _LOGGER.debug(f"Channel: {channel}, Current Power: {current_power}, Total Energy: {total_energy}")
+            _LOGGER.debug(f"Channel: {channel}, Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}")
 
-        if current_power is None or total_energy is None:
+        if evcharger_current_power is None or evcharger_total_energy is None:
             _LOGGER.error("Failed to retrieve necessary data from the API response")
-            _LOGGER.debug(f"Final parsed values - Current Power: {current_power}, Total Energy: {total_energy}")
+            _LOGGER.debug(f"Final parsed values - Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}")
             raise ValueError("Failed to retrieve necessary data from the API response")
 
         return {
-            "current_power": current_power,
-            "total_energy": total_energy
+            "evcharger_current_power": evcharger_current_power,
+            "evcharger_total_energy": evcharger_total_energy,
+            "evcharger_connection_status": evcharger_total_energy
         }
