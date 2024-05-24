@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -12,6 +12,8 @@ class EvChargerAPI:
         self.password = password
         self.session = requests.Session()
         self.token = None
+        self.refresh_token = None
+        self.token_expiry = None
 
     def authenticate(self):
         """Authenticate and obtain a token for subsequent API calls."""
@@ -27,15 +29,47 @@ class EvChargerAPI:
 
         tokens = response.json()
         self.token = tokens.get("access_token")
+        self.refresh_token = tokens.get("refresh_token")
+        expires_in = tokens.get("expires_in", 3600)  # Default to 1 hour if not provided
+        self.token_expiry = datetime.now() + timedelta(seconds=expires_in)
 
-        if not self.token:
+        if not self.token or not self.refresh_token:
             raise ValueError("Authentication failed, no token received")
 
         # Update session headers with the received token
         self.session.headers.update({"Authorization": f"Bearer {self.token}"})
 
+    def refresh_access_token(self):
+        """Refresh the access token using the refresh token."""
+        refresh_url = f"{self.api_url}/api/v1/token"
+        refresh_payload = {
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token
+        }
+
+        response = self.session.post(refresh_url, data=refresh_payload)
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+
+        tokens = response.json()
+        self.token = tokens.get("access_token")
+        expires_in = tokens.get("expires_in", 3600)  # Default to 1 hour if not provided
+        self.token_expiry = datetime.now() + timedelta(seconds=expires_in)
+
+        if not self.token:
+            raise ValueError("Failed to refresh access token")
+
+        # Update session headers with the new access token
+        self.session.headers.update({"Authorization": f"Bearer {self.token}"})
+
+    def ensure_token_valid(self):
+        """Ensure the access token is valid, refresh if necessary."""
+        if self.token_expiry is None or datetime.now() >= self.token_expiry:
+            self.refresh_access_token()
+
     def get_data(self):
         """Fetch the data from the API."""
+        self.ensure_token_valid()  # Ensure the access token is valid before making the request
+
         measurements_url = f"{self.api_url}/api/v1/measurements/live/"
         payload = json.dumps([{"componentId": "IGULD:SELF"}])
 
@@ -49,7 +83,7 @@ class EvChargerAPI:
         # Data Processing
         evcharger_current_power = None
         evcharger_total_energy = None
-        evcharger_connection_status = None
+        evcharger_mod_sw = None
 
         for item in data:
             channel = item['channelId']
@@ -80,19 +114,19 @@ class EvChargerAPI:
                 evcharger_total_energy = value / 1000  # Convert to kWh
             elif channel == "Measurement.Metering.GridMs.TotWIn":
                 evcharger_current_power = value / 1000  # Convert to kW
-            elif channel == "Measurement.Wl.ConnStt":
-                evcharger_connection_status = value   # Connection Status
+            elif channel == "Measurement.Metering.Chrg.ModSw":
+                evcharger_mod_sw = value
 
             # Log the parsed values for debugging
-            _LOGGER.debug(f"Channel: {channel}, Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}")
+            _LOGGER.debug(f"Channel: {channel}, Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, ModSw: {evcharger_mod_sw}")
 
-        if evcharger_current_power is None or evcharger_total_energy is None:
+        if evcharger_current_power is None or evcharger_total_energy is None or evcharger_mod_sw is None:
             _LOGGER.error("Failed to retrieve necessary data from the API response")
-            _LOGGER.debug(f"Final parsed values - Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}")
+            _LOGGER.debug(f"Final parsed values - Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, ModSw: {evcharger_mod_sw}")
             raise ValueError("Failed to retrieve necessary data from the API response")
 
         return {
             "evcharger_current_power": evcharger_current_power,
             "evcharger_total_energy": evcharger_total_energy,
-            "evcharger_connection_status": evcharger_connection_status
+            "evcharger_mod_sw": evcharger_mod_sw
         }
