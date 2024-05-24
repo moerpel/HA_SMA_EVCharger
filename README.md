@@ -4,7 +4,7 @@ A first test of installing the integration in Home Assistant.
 ##Configuration
 ```yaml
 evcharger: <br>
-    username: "your username to access EV Charger WebPortal" <br>
-    password: "your password to access EV Charger WebPortal" <br>
-    api_url: "http://IP_Address_of_Wallbox" <br>
+    username: "your username to access EV Charger WebPortal"
+    password: "your password to access EV Charger WebPortal"
+    api_url: "http://IP_Address_of_Wallbox"
 ```
