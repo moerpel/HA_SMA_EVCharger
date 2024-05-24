@@ -1,5 +1,5 @@
 # HA_SMA_EVCharger
-A first test of installing the integration in Home Assistant.
+A first test of retrieving data from EvCharger in Home Assistant.
 
 ## Configuration
 ```yaml
