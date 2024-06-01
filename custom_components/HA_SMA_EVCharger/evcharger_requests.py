@@ -49,6 +49,7 @@ class EvChargerAPI:
         response = self.session.post(token_url, data=refresh_payload)
         _LOGGER.info(f"Result: {response}")
         _LOGGER.debug(f"Refresh Token Used: {self.refresh_token}")
+
         """Fetch the data from the API."""
         measurements_url = f"{self.api_url}/api/v1/measurements/live/"
         payload = json.dumps([{"componentId": "IGULD:SELF"}])
@@ -63,7 +64,7 @@ class EvChargerAPI:
         # Data Processing
         evcharger_current_power = None
         evcharger_total_energy = None
-        evcharger_connection_status = None
+        evcharger_connection_status_raw = None
         evcharger_mode_switch = None
         evcharger_mode = None
         evcharger_charging_status_raw = None
@@ -103,7 +104,9 @@ class EvChargerAPI:
             elif channel == "Measurement.Metering.GridMs.TotWIn":
                 evcharger_current_power = value / 1000  # Convert to kW
             elif channel == "Measurement.Operation.EVeh.Health":
-                evcharger_connection_status = value   # Connection Status
+                evcharger_connection_status_raw = value   # Connection Status
+                _LOGGER.debug(f"{evcharger_connection_status_raw}")
+
             elif channel == "Measurement.Chrg.ModSw":
                 evcharger_mode_switch = value   # Mode Switch
             elif channel == "Measurement.Operation.EVeh.ChaStt":
@@ -111,12 +114,12 @@ class EvChargerAPI:
             elif channel == "Measurement.Metering.GridMs.TotWhIn.ChaSta":
                 evcharger_energy_counter__ChargingStation_total_Wh = value / 1000 # Energy Counter overall charging station Convert to kWh
         
-        if evcharger_current_power is None or evcharger_total_energy is None or evcharger_connection_status is None or evcharger_mode_switch is None:
+        if evcharger_current_power is None or evcharger_total_energy is None or evcharger_connection_status_raw is None or evcharger_mode_switch is None:
             _LOGGER.error("Failed to retrieve necessary data from the API response")
-            _LOGGER.debug(f"Final parsed values - Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}")
+            _LOGGER.debug(f"Final parsed values - Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status_raw}")
             raise ValueError("Failed to retrieve necessary data from the API response")
         # Log the parsed values for debugging
-        _LOGGER.debug(f"Channel: {channel}, Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status}, Mode Switch: {evcharger_mode_switch}")
+        _LOGGER.debug(f"Channel: {channel}, Current Power: {evcharger_current_power}, Total Energy: {evcharger_total_energy}, Connection Status: {evcharger_connection_status_raw}, Mode Switch: {evcharger_mode_switch}")
         
         #Translations
         if str(evcharger_mode_switch) == "4950":
@@ -135,11 +138,21 @@ class EvChargerAPI:
                 evcharger_charging_status = "charging"
         else: evcharger_charging_status = "unknown"
         _LOGGER.debug(f"Translated evcharger charging status raw: {evcharger_charging_status_raw} to readable: {evcharger_charging_status}")
+        if str(evcharger_connection_status_raw) == "307":
+            evcharger_connection_status ="ok"    
+        elif str(evcharger_connection_status_raw) == "455":
+            evcharger_connection_status = "warning"
+        elif str(evcharger_connection_status_raw) == "35":
+                evcharger_connection_status = "alert"
+        elif str(evcharger_connection_status_raw) == "303":
+                evcharger_connection_status = "off"
+        else: evcharger_connection_status = "unknown"
+        _LOGGER.debug(f"Translated evcharger charging status raw: {evcharger_connection_status_raw} to readable: {evcharger_connection_status}")
 
         return {
             "evcharger_current_power": evcharger_current_power,
             "evcharger_total_energy": evcharger_total_energy,
-            "evcharger_connection_status": evcharger_connection_status,
+            "evcharger_connection_status_raw": evcharger_connection_status_raw,
             "evcharger_mode_switch": evcharger_mode_switch,
             "evcharger_mode": evcharger_mode,
             "evcharger_charging_status_raw": evcharger_charging_status_raw,
