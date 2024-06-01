@@ -69,7 +69,8 @@ class EvChargerAPI:
         evcharger_mode = None
         evcharger_charging_status_raw = None
         evcharger_charging_status = None
-        evcharger_energy_counter__ChargingStation_total_Wh = None
+        evcharger_energy_counter_ChargingStation_total_Wh = None
+        evcharger_connection_status = None
 
         for item in data:
             channel = item['channelId']
@@ -147,7 +148,7 @@ class EvChargerAPI:
         elif str(evcharger_connection_status_raw) == "303":
                 evcharger_connection_status = "off"
         else: evcharger_connection_status = "unknown"
-        _LOGGER.debug(f"Translated evcharger charging status raw: {evcharger_connection_status_raw} to readable: {evcharger_connection_status}")
+        _LOGGER.debug(f"Translated evcharger connection status raw: {evcharger_connection_status_raw} to readable: {evcharger_connection_status}")
 
         return {
             "evcharger_current_power": evcharger_current_power,
@@ -157,5 +158,6 @@ class EvChargerAPI:
             "evcharger_mode": evcharger_mode,
             "evcharger_charging_status_raw": evcharger_charging_status_raw,
             "evcharger_charging_status": evcharger_charging_status,
-            "evcharger_energy_counter__ChargingStation_total_Wh": evcharger_energy_counter__ChargingStation_total_Wh
+            "evcharger_energy_counter_ChargingStation_total_Wh": evcharger_energy_counter_ChargingStation_total_Wh,
+            "evcharger_connection_status": evcharger_connection_status
         }
