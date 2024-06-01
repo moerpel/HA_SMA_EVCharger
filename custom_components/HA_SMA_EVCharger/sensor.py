@@ -35,7 +35,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities([
         EvChargerPowerSensor(coordinator),
         EvChargerEnergySensor(coordinator),
-        EvChargerConnectionStatus(coordinator)
+        EvChargerConnectionStatus(coordinator),
+        EvChargerModeSwitch(coordinator),
+        EvChargerMode(coordinator),
+        EvChargerChargingStatusRaw(coordinator),
+        EvChargerChargingStatus(coordinator),
+        EvChargerEnergyCounterChargingStation(coordinator)
     ])
 
 class EvChargerSensor(CoordinatorEntity, SensorEntity):
@@ -101,8 +106,69 @@ class EvChargerConnectionStatus(EvChargerSensor):
     def state(self):
         """Return the state of the sensor."""
         return self.coordinator.data.get("evcharger_connection_status")
+class EvChargerModeSwitch(EvChargerSensor):
+    """Sensor for Mode Switch"""
 
-'''     @property
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Mode Switch"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_mode_switch")
+class EvChargerMode(EvChargerSensor):
+    """Sensor for Mode."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Mode"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_mode")
+class EvChargerChargingStatusRaw(EvChargerSensor):
+    """Sensor for Charging Status Raw value."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Charging Status Raw"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_charging_status_raw")
+
+class EvChargerChargingStatus(EvChargerSensor):
+    """Sensor for Charging status."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Charging Status"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_charging_status")
+class EvChargerEnergyCounterChargingStation(EvChargerSensor):
+    """Sensor for Energy Counter Charging Station."""
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "EVcharger Energy Counter Charging Station"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self.coordinator.data.get("evcharger_energy_counter__ChargingStation_total_Wh")
+    @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
-        return UnitOfEnergy.KILO_WATT_HOUR '''
+        return UnitOfEnergy.KILO_WATT_HOUR
+
