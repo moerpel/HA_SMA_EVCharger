@@ -113,7 +113,7 @@ class EvChargerAPI:
             elif channel == "Measurement.Operation.EVeh.ChaStt":
                 evcharger_charging_status_raw = value   # Charging Status
             elif channel == "Measurement.Metering.GridMs.TotWhIn.ChaSta":
-                evcharger_energy_counter__ChargingStation_total_Wh = value / 1000 # Energy Counter overall charging station Convert to kWh
+                evcharger_energy_counter_ChargingStation_total_Wh = value / 1000 # Energy Counter overall charging station Convert to kWh
         
         if evcharger_current_power is None or evcharger_total_energy is None or evcharger_connection_status_raw is None or evcharger_mode_switch is None:
             _LOGGER.error("Failed to retrieve necessary data from the API response")
