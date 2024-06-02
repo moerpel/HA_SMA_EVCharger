@@ -8,7 +8,7 @@ A first test of retrieving data from EvCharger in Home Assistant.
 2. Install SMA EV Charger from list.
 
 ## Configuration
-add the following to the configuration.yaml to your Home Assistant configuration
+add the following to the configuration.yaml in your Home Assistant configuration
 ```yaml
 evcharger:
     username: "your username to access EV Charger WebPortal"
