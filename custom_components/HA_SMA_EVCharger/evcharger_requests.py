@@ -39,17 +39,28 @@ class EvChargerAPI:
         self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
 
     def get_data(self):
-        """Refresh token to have a valid authentication."""
-        _LOGGER.info(f"Fetching data from wallbox {self.api_url}.")
-        refresh_payload = {
-            'grant_type': 'refresh_token',
-            'refresh_token': self.refresh_token
-        }
+        
         token_url = f"{self.api_url}/api/v1/token"
-        response = self.session.post(token_url, data=refresh_payload)
-        _LOGGER.info(f"Result: {response}")
-        _LOGGER.debug(f"Refresh Token Used: {self.refresh_token}")
+        auth_payload = {
+            'grant_type': 'password',
+            'username': self.username,
+            'password': self.password
+        }
+        response = self.session.post(token_url, data=auth_payload)
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
 
+        tokens = response.json()
+        self.access_token = tokens.get("access_token")
+        _LOGGER.debug(f"Access Token: {self.access_token}")
+        self.refresh_token = tokens.get("refresh_token")
+        _LOGGER.debug(f"Refresh Token: {self.refresh_token}")
+
+        if not self.access_token:
+            raise ValueError("Authentication failed, no token received")
+
+        # Update session headers with the received token
+        self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
+        
         """Fetch the data from the API."""
         measurements_url = f"{self.api_url}/api/v1/measurements/live/"
         payload = json.dumps([{"componentId": "IGULD:SELF"}])
