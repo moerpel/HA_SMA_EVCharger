@@ -5,7 +5,7 @@ A first test of retrieving data from EvCharger in Home Assistant.
 
 ##Installation
 1. Add https://github.com/moerpel/HA_SMA_EVCharger as repository in HACS
-2. Install SMA EV Charger
+2. Install SMA EV Charger from list.
 
 ## Configuration
 add the following to the configuration.yaml to your Home Assistant configuration
