@@ -15,3 +15,4 @@ evcharger:
     password: "your password to access EV Charger WebPortal"
     api_url: "http://IP_Address_of_Wallbox"
 ```
+## Restart your Home Assistant
