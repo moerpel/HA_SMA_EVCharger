@@ -18,6 +18,8 @@ evcharger:
 ## Restart your Home Assistant
 
 ## Sensor Entities that will be available in Homeassistant:
-    sensor.evcharger_charging_status_raw > represents the raw value of the EVCharger that devices the charging status.
-    sensor.evcharger_charging_status > represents the charging status of the charger, which is derived from sensor.evcharger_charging_status_raw and can have the following value: 'charging', 'sleeping', 'not connected'
-    
+    sensor.evcharger_charging_status_raw > represents the raw value of the EVCharger that defines the charging status.
+    sensor.evcharger_charging_status > represents the charging status of the charger, which is derived from sensor.evcharger_charging_status_raw and can have the following values: 'charging', 'sleeping', 'not connected'
+
+    sensor.evcharger_connection_status_raw > represents the raw value of the EVCharger that defines the overall status of the wallbox.
+    sensor.evcharger_connection_status > represents the overall connection status of the wallbox, which is derived from sensor.evcharger_connection_status_raw and can have the following values: "ok
