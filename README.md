@@ -22,4 +22,10 @@ evcharger:
     sensor.evcharger_charging_status > represents the charging status of the charger, which is derived from sensor.evcharger_charging_status_raw and can have the following values: 'charging', 'sleeping', 'not connected'
 
     sensor.evcharger_connection_status_raw > represents the raw value of the EVCharger that defines the overall status of the wallbox.
-    sensor.evcharger_connection_status > represents the overall connection status of the wallbox, which is derived from sensor.evcharger_connection_status_raw and can have the following values: "ok
+    sensor.evcharger_connection_status > represents the overall connection status of the wallbox, which is derived from sensor.evcharger_connection_status_raw and can have the following values: 'ok', 'warning', 'alert', 'off'.
+
+    sensor.evcharger_current_charging_power > this entity represents the current charging power.
+
+    sensor.evcharger_energy_counter_charging_station > this entitty represents the value of the total energy counter of the wallbox.
+
+    sensor.evcharger_mode _ this entitiy represents the position of the physical switch and can have the following values 'fast charging', 'intelligent charging'
