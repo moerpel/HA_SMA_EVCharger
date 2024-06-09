@@ -16,3 +16,8 @@ evcharger:
     api_url: "http://IP_Address_of_Wallbox"
 ```
 ## Restart your Home Assistant
+
+## Sensor Entities that will be available in Homeassistant:
+    sensor.evcharger_charging_status_raw > represents the raw value of the EVCharger that devices the charging status.
+    sensor.evcharger_charging_status > represents the charging status of the charger, which is derived from sensor.evcharger_charging_status_raw and can have the following value: 'charging', 'sleeping', 'not connected'
+    
