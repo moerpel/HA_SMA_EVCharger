@@ -17,7 +17,7 @@ evcharger:
 ```
 ## Restart your Home Assistant
 
-## Sensor Entities that will be available in Homeassistant:
+## Sensor entities that will be available in Homeassistant:
     sensor.evcharger_charging_status_raw > represents the raw value of the EVCharger that defines the charging status.
     sensor.evcharger_charging_status > represents the charging status of the charger, which is derived from sensor.evcharger_charging_status_raw and can have the following values: 'charging', 'sleeping', 'not connected'
 
@@ -28,4 +28,9 @@ evcharger:
 
     sensor.evcharger_energy_counter_charging_station > this entitty represents the value of the total energy counter of the wallbox.
 
-    sensor.evcharger_mode _ this entitiy represents the position of the physical switch and can have the following values 'fast charging', 'intelligent charging'
+    sensor.evcharger_mode_switch > represents the raw value of the physical switch.
+    sensor.evcharger_mode _ this entitiy represents the position of the physical switch and can have the following values 'fast charging', 'intelligent charging', 'unknown'.
+
+    sensor.evcharger_total_energy_charged > represents the value of the energy counter for this charging session.
+
+    
