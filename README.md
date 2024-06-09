@@ -34,3 +34,4 @@ evcharger:
     sensor.evcharger_total_energy_charged > represents the value of the energy counter for this charging session.
 
     
+<img width="1336" alt="image" src="https://github.com/moerpel/HA_SMA_EVCharger/assets/66588833/2bad1445-e6fe-4df6-9530-aef503e5532b">
